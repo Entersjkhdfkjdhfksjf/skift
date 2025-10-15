@@ -1,0 +1,32 @@
+name: Manual Build and Package
+
+on:
+  workflow_dispatch:  # Run manually from the Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set execute permission for skift.sh
+        run: chmod +x skift.sh
+
+      - name: Run build commands
+        run: |
+          ./skift.sh tools setup
+          ./skift.sh tools doctor
+          ./skift.sh model install
+          ./skift.sh dist --format=hdd
+
+      - name: Zip entire repository
+        run: |
+          zip -r build-output.zip ./*
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-archive
+          path: build-output.zip
